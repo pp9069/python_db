@@ -1,0 +1,100 @@
+from xml.etree.ElementPath import _SelectorContext
+from sqlalchemy import create_engine, Column, Float, Integer,String,TIMESTAMP
+from sqlalchemy import and_
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime,date
+import mysql.connector
+
+
+engine = create_engine('mysql://root:pathkhouli1@localhost/mbmstocktick')
+
+
+Base = declarative_base()
+Session = sessionmaker(bind = engine)
+session = Session()
+
+
+class mbmstocktick(Base):
+    __tablename__='mbmstocktick'
+    id = Column(Integer, primary_key=True)
+    open = Column(Float)
+    close = Column(Float)
+    high = Column(Float)
+    low = Column(Float)
+    volume = Column(Float)
+    exchange_instrument_id = Column(Integer)
+    exchange_instrument_name = Column(String(40))
+    Timestamp1=Column(TIMESTAMP)
+
+    def create_table(self):
+        Base.metadata.create_all(engine)
+
+    def insert_table(self,a,b,c,d,e,f,g,h):
+        c1 = mbmstocktick(open = a, close = b, high = c, low=d,volume=e, exchange_instrument_id=f, exchange_instrument_name=g, Timestamp1=h)
+        session.add(c1)
+        session.commit()
+        
+
+    def show_table(self):
+        result = session.query(mbmstocktick).all()
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+    # Filter by column data
+
+    def get_element_by_exi_id(self,val):
+        result = session.query(mbmstocktick).filter(mbmstocktick.exchange_instrument_id == val)
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+        
+    def get_element_by_exi_name(self,val):
+        result = session.query(mbmstocktick).filter(mbmstocktick.exchange_instrument_name == val)
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+    def get_element_by_timestamp(self,beg,end): 
+        result = session.query(mbmstocktick).filter(and_(mbmstocktick.Timestamp1>=beg,mbmstocktick.Timestamp1<=end))
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+
+    def get_element_by_exi_id_timestamp(self,val,beg,end):
+        result = session.query(mbmstocktick).filter(and_(mbmstocktick.Timestamp1 >= beg,mbmstocktick.Timestamp1 <= end,mbmstocktick.exchange_instrument_id == val))
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+
+    def get_element_by_exi_name_timestamp(self,val,beg,end):
+        result = session.query(mbmstocktick).filter(and_(mbmstocktick.Timestamp1 >= beg,mbmstocktick.Timestamp1 <= end,mbmstocktick.exchange_instrument_name == val))
+        for row in result:
+            print (row.id,row.open,row.close,row.high,row.low,row.exchange_instrument_id,row.exchange_instrument_name,row.Timestamp1)
+    
+
+s1=mbmstocktick()
+
+#s1.create_table()
+i=1345430172
+dt = datetime.fromtimestamp(i)
+#s1.insert_table(19,181,190,476,21,100,'XYZ',dt)
+
+# s1.show_table()
+
+#s1.get_element_by_exi_id(54)
+# s1.get_element_by_exi_name("KOL")
+#beg_dt=input()
+end_dt=input()
+if end_dt:
+    pass
+else:
+    end_dt=datetime.now()
+    tt = int(round(end_dt.timestamp()))
+    
+
+# end_dt=1545730072
+beg_dt=1345430172
+
+# s1.get_element_by_timestamp(datetime.fromtimestamp(beg_dt),datetime.fromtimestamp(tt))
+# s1.get_element_by_exi_id_timestamp(100,datetime.fromtimestamp(beg_dt),datetime.fromtimestamp(tt))
+s1.get_element_by_exi_name_timestamp('ABC',datetime.fromtimestamp(beg_dt),datetime.fromtimestamp(tt))
